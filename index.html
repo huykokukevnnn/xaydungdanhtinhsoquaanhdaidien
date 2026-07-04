@@ -369,17 +369,12 @@
                 <div id="task1-icon" class="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5 flex items-center justify-center bg-white text-white transition-colors duration-300">
                     <svg class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                 </div>
-                <div class="text-[18 font-medium text-gray-800 leading-tight pt-1 transition-colors duration-300" id="task1-text">1. Thay đổi ảnh đại diện</div>
+                <div class="text-[18 font-medium text-gray-800 leading-tight pt-1 transition-colors duration-300" id="task1-text">1. Thay đổi ảnh đại diện ít nhất 4 lần (<span id="avatar-change-count">0</span>/4)</div>
             </div>
             <div class="flex items-start gap-3">
                 <div id="task2-icon" class="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5 flex items-center justify-center bg-white text-white transition-colors duration-300">
                     <svg class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                 </div>
-                <div class="text-[18 font-medium text-gray-800 leading-tight pt-1 transition-colors duration-300" id="task2-text">2. Xem kết quả phản hồi ở bảng tin</div>
-            </div>
-        </div>
-
-        <div class="bg-[#F0F8FF] rounded-lg p-3 border border-[#D0E8FF]">
             <h4 class="font-bold text-[#0052A3] text-[16 uppercase mb-1.5">Hướng dẫn thực hiện</h4>
             <p class="text-[18 text-[#003B73] leading-snug">Nhấn vào biểu tượng <strong>Avatar của bạn ở góc trên bên phải</strong> màn hình, sau đó chọn <strong>"Cập nhật ảnh đại diện"</strong> để làm nhiệm vụ đầu tiên!</p>
         </div>
@@ -450,9 +445,22 @@
 
         const classmates = ["Gia Bảo", "Bảo Ngọc", "Hải Đăng"];
 
+        function checkShowQuizButton() {
+            const task1Done = document.getElementById('task1-icon').classList.contains('bg-[#31A24C]');
+            const task2Done = document.getElementById('task2-icon').classList.contains('bg-[#31A24C]');
+            if (task1Done && task2Done) {
+                document.getElementById('btn-start-quiz').classList.remove('hidden');
+            }
+        }
+
         function startPostSimulation() {
-            // Task 1 completed
-            markTaskDone(1);
+            // Check avatar change count
+            state.avatarChangeCount = (state.avatarChangeCount || 0) + 1;
+            document.getElementById('avatar-change-count').textContent = Math.min(state.avatarChangeCount, 4);
+            if (state.avatarChangeCount >= 4) {
+                markTaskDone(1);
+                checkShowQuizButton();
+            }
 
             state.isSimulationRunning = true;
             els.emptyState.classList.add('hidden');
@@ -499,7 +507,10 @@
             state.isSimulationRunning = false;
             
             // Task 2 completed
-            setTimeout(() => { markTaskDone(2); }, 1000);
+            setTimeout(() => { 
+                markTaskDone(2); 
+                checkShowQuizButton();
+            }, 1000);
         }
 
         function addCommentDOM(author, text) {
@@ -709,20 +720,36 @@
         document.addEventListener('mousemove', drag);
         document.addEventListener('mouseup', dragEnd);
 
+        // Touch events for mobile
+        missionPanel.addEventListener('touchstart', dragStart, {passive: false});
+        document.addEventListener('touchmove', drag, {passive: false});
+        document.addEventListener('touchend', dragEnd);
+
         function dragStart(e) {
-            if (e.target.closest('#mission-panel')) {
-                e.preventDefault(); // Prevent text selection
-                initialX = e.clientX - xOffset;
-                initialY = e.clientY - yOffset;
+            if (e.target.closest('#mission-panel') && !e.target.closest('button')) {
+                if(e.type === "touchstart") {
+                    initialX = e.touches[0].clientX - xOffset;
+                    initialY = e.touches[0].clientY - yOffset;
+                } else {
+                    e.preventDefault(); // Prevent text selection
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                }
                 isDragging = true;
             }
         }
 
         function drag(e) {
             if (isDragging) {
-                e.preventDefault();
-                xOffset = e.clientX - initialX;
-                yOffset = e.clientY - initialY;
+                if(e.type === "touchmove") {
+                    e.preventDefault();
+                    xOffset = e.touches[0].clientX - initialX;
+                    yOffset = e.touches[0].clientY - initialY;
+                } else {
+                    e.preventDefault();
+                    xOffset = e.clientX - initialX;
+                    yOffset = e.clientY - initialY;
+                }
                 missionPanel.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
                 missionPanel.style.cursor = 'grabbing';
             }
@@ -731,6 +758,34 @@
         function dragEnd(e) {
             isDragging = false;
             missionPanel.style.cursor = 'grab';
+        }
+
+        function openQuizModal() {
+            document.getElementById('modal-quiz').classList.remove('hidden');
+            document.getElementById('modal-quiz').classList.add('flex');
+        }
+
+        function closeQuizModal() {
+            document.getElementById('modal-quiz').classList.add('hidden');
+            document.getElementById('modal-quiz').classList.remove('flex');
+        }
+
+        function submitQuiz() {
+            const q1 = document.querySelector('input[name="q1"]:checked');
+            const q2 = document.querySelector('input[name="q2"]:checked');
+            
+            if (!q1 || !q2) {
+                alert('Bạn vui lòng trả lời đầy đủ 2 câu hỏi nhé!');
+                return;
+            }
+            
+            if (q1.value === 'A' && q2.value === 'A') {
+                alert('🎉 Chúc mừng! Bạn đã trả lời đúng tất cả các câu hỏi. Bạn đã hoàn thành xuất sắc bài tập Xây Dựng Danh Tính Số!');
+                closeQuizModal();
+                els.tutorialTooltip.classList.add('hidden');
+            } else {
+                alert('Chưa đúng rồi! Bạn hãy xem lại nhé. Mẹo: Chọn ảnh đại diện phù hợp giúp thể hiện tính cách tốt nhất.');
+            }
         }
 
         function openAvatarLibrary() {
@@ -747,6 +802,72 @@
             }
         }
     </script>
+    
+    <!-- Quiz Modal -->
+    <div id="modal-quiz" class="hidden fixed inset-0 z-[100] bg-black/60 items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] overflow-hidden fade-in">
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-[#F0F2F5]">
+                <h2 class="text-xl font-bold text-[#050505] text-center w-full">Bài tập trắc nghiệm</h2>
+                <button onclick="closeQuizModal()" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600 transition absolute right-4">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-6 bg-white" id="quiz-content">
+                <!-- Question 1 -->
+                <div>
+                    <h3 class="font-semibold text-lg text-gray-800 mb-3">Câu 1: Tại sao chúng ta cần phải chọn một ảnh đại diện phù hợp?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition">
+                            <input type="radio" name="q1" value="A" class="mt-1 w-4 h-4 text-[#1877F2]">
+                            <span class="text-gray-700">A. Để thể hiện tính cách và sở thích cá nhân một cách tích cực.</span>
+                        </label>
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition">
+                            <input type="radio" name="q1" value="B" class="mt-1 w-4 h-4 text-[#1877F2]">
+                            <span class="text-gray-700">B. Để khoe khoang và thể hiện mình giỏi hơn bạn bè.</span>
+                        </label>
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition">
+                            <input type="radio" name="q1" value="C" class="mt-1 w-4 h-4 text-[#1877F2]">
+                            <span class="text-gray-700">C. Để giấu giếm danh tính thật của mình.</span>
+                        </label>
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition">
+                            <input type="radio" name="q1" value="D" class="mt-1 w-4 h-4 text-[#1877F2]">
+                            <span class="text-gray-700">D. Để được nhiều người lạ vào khen ngợi.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div>
+                    <h3 class="font-semibold text-lg text-gray-800 mb-3">Câu 2: Nếu bạn chọn một ảnh đại diện không phù hợp, hệ quả có thể là gì?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition">
+                            <input type="radio" name="q2" value="A" class="mt-1 w-4 h-4 text-[#1877F2]">
+                            <span class="text-gray-700">A. Người khác có thể hiểu lầm về tính cách và đánh giá sai về con người bạn.</span>
+                        </label>
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition">
+                            <input type="radio" name="q2" value="B" class="mt-1 w-4 h-4 text-[#1877F2]">
+                            <span class="text-gray-700">B. Bạn sẽ tự nhiên trở nên nổi tiếng hơn trên mạng.</span>
+                        </label>
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition">
+                            <input type="radio" name="q2" value="C" class="mt-1 w-4 h-4 text-[#1877F2]">
+                            <span class="text-gray-700">C. Không có hệ quả gì cả vì mạng xã hội chỉ là thế giới ảo.</span>
+                        </label>
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition">
+                            <input type="radio" name="q2" value="D" class="mt-1 w-4 h-4 text-[#1877F2]">
+                            <span class="text-gray-700">D. Máy tính hoặc điện thoại của bạn sẽ bị hỏng.</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 bg-white">
+                <button onclick="submitQuiz()" class="w-full bg-[#1877F2] text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition shadow-sm">
+                    Nộp bài
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 
