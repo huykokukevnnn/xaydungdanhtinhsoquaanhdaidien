@@ -530,8 +530,13 @@
         }
 
         function highlightSelectedCard(id) {
-            document.querySelectorAll('.avatar-card').forEach(el => el.classList.remove('avatar-selected'));
-            document.getElementById(`card-${id}`).classList.add('avatar-selected');
+            document.querySelectorAll('.avatar-card').forEach(el => {
+                el.classList.remove('border-4', 'border-[#1877F2]', 'ring-4', 'ring-blue-500/30');
+                el.classList.add('border', 'border-gray-200');
+            });
+            const selectedEl = document.getElementById(`card-${id}`);
+            selectedEl.classList.remove('border', 'border-gray-200');
+            selectedEl.classList.add('border-4', 'border-[#1877F2]', 'ring-4', 'ring-blue-500/30');
         }
 
         const classmates = ["Gia Bảo", "Bảo Ngọc", "Hải Đăng"];
