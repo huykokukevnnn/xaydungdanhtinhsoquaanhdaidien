@@ -76,7 +76,7 @@
             
             <!-- Middle Tabs -->
             <div class="hidden md:flex flex-1 max-w-[600px] justify-center gap-1 mx-4 h-full pt-1">
-                <div class="w-[110px] flex justify-center items-center cursor-pointer border-b-[3px] border-[#1877F2]">
+                <div class="w-[110px] flex justify-center items-center cursor-pointer border-b-[3px] border-[#1877F2]" onclick="goToFeed()">
                     <svg class="w-7 h-7 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                 </div>
                 <div class="w-[110px] flex justify-center items-center cursor-pointer hover:bg-[#F2F2F2] rounded-lg my-1 transition-colors">
@@ -102,18 +102,18 @@
                 
                 <!-- Interactive Profile Button -->
                 <div class="relative z-[110] ml-1">
-                    <div id="profile-btn" class="w-10 h-10 rounded-full bg-gray-200 cursor-pointer overflow-hidden border hover:opacity-90 relative" onclick="handleProfileClick(event)">
+                    <div id="profile-btn" class="w-10 h-10 rounded-full bg-gray-200 cursor-pointer overflow-hidden border hover:opacity-90 relative" onclick="goToProfile()">
                         <img id="current-avatar-nav" src="" class="w-full h-full object-cover" alt="Profile">
                     </div>
                     
                     <!-- Tutorial Tooltip -->
-                    <div id="tutorial-tooltip" class="absolute hidden right-0 top-[60px] bg-[#1877F2] text-white px-5 py-3 rounded-xl shadow-2xl w-[280px] text-[18px] font-bold animate-pulse z-[120]">
-                        Bấm vào đây để thay đổi ảnh đại diện!
+                    <div id="tutorial-tooltip" class="absolute hidden right-0 top-[60px] bg-[#1877F2] text-white px-5 py-3 rounded-xl shadow-2xl w-[320px] text-[18px] font-bold animate-pulse z-[120]">
+                        Bấm vào Tên hoặc Hình của bạn để đi tới Trang Cá Nhân và đổi ảnh đại diện!
                         <div class="absolute -top-3 right-5 w-6 h-6 bg-[#1877F2] rotate-45"></div>
                     </div>
 
                     <!-- Dropdown Popover -->
-                    <div id="profile-menu" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 z-[120] overflow-hidden">
+                    <div id="profile-menu" class="hidden! absolute right-0 style="display:none;" mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 z-[120] overflow-hidden">
                         <div class="p-3 bg-white">
                             <div class="flex items-center gap-3 p-3 rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.1)] mb-3">
                                 <img id="menu-avatar-thumb" src="" class="w-10 h-10 rounded-full object-cover">
@@ -135,7 +135,7 @@
 
 
         <!-- Layout Wrapper -->
-        <div class="flex-1 flex overflow-hidden">
+        <div id="view-feed-layout" class="flex-1 flex overflow-hidden w-full">
             <!-- Left Sidebar -->
             <div class="hidden lg:block w-[360px] p-2 bg-[#F0F2F5] overflow-y-auto custom-scrollbar">
                 <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
@@ -357,6 +357,97 @@
         </div>
     </div>
 
+    
+        <!-- NEW Profile Layout -->
+        <div id="view-profile-layout" class="hidden flex-1 overflow-y-auto custom-scrollbar w-full bg-[#F0F2F5] pb-20">
+            <div class="w-full bg-white shadow-sm flex flex-col items-center">
+                <!-- Cover Photo Container -->
+                <div class="w-full max-w-[1000px] h-[200px] md:h-[350px] bg-gradient-to-br from-gray-200 to-gray-400 rounded-b-xl relative overflow-hidden group">
+                    <img src="https://images.unsplash.com/photo-1517430816045-df4b7ef11df1?auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover">
+                    <button class="absolute bottom-4 right-4 bg-white/90 hover:bg-white text-[#050505] font-semibold py-1.5 px-3 rounded-lg flex items-center gap-2 text-[15px] shadow-sm transition">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM9 13.5A3.5 3.5 0 1015 13.5 3.5 3.5 0 009 13.5z"/></svg>
+                        Thêm ảnh bìa
+                    </button>
+                </div>
+                
+                <!-- Profile Info Header -->
+                <div class="w-full max-w-[1000px] px-4 md:px-8 pb-4 flex flex-col md:flex-row relative">
+                    <!-- Avatar -->
+                    <div class="relative -mt-16 md:-mt-8 mx-auto md:mx-0 w-[130px] h-[130px] md:w-[168px] md:h-[168px] rounded-full border-4 border-white bg-white shrink-0 shadow-sm z-10">
+                        <img id="profile-page-avatar" src="" class="w-full h-full object-cover hover:opacity-95 transition rounded-full cursor-pointer" onclick="openAvatarLibrary()">
+                        <div class="absolute bottom-2 right-2 w-9 h-9 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center cursor-pointer border-2 border-white text-gray-800 shadow" onclick="openAvatarLibrary()" title="Cập nhật ảnh đại diện">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM9 13.5A3.5 3.5 0 1015 13.5 3.5 3.5 0 009 13.5z"/></svg>
+                        </div>
+                        
+                        <!-- Profile Tutorial Tooltip -->
+                        <div id="tutorial-tooltip-profile" class="absolute hidden right-0 md:right-[-280px] top-[140px] md:top-[80px] bg-[#1877F2] text-white px-5 py-3 rounded-xl shadow-2xl w-[270px] text-[18px] font-bold animate-pulse z-[120]">
+                            Bấm vào biểu tượng máy ảnh để thay đổi ảnh đại diện!
+                            <div class="absolute top-[-10px] left-10 md:left-4 w-6 h-6 bg-[#1877F2] rotate-45"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Name and Action Buttons -->
+                    <div class="flex-1 mt-4 md:mt-10 md:ml-6 flex flex-col md:flex-row justify-between items-center md:items-start text-center md:text-left gap-4">
+                        <div>
+                            <h1 class="text-[28px] md:text-[32px] font-bold text-[#050505] student-name-display">Học sinh lớp 5</h1>
+                            <p class="text-[15px] font-semibold text-[#65676B] hover:underline cursor-pointer">197 người bạn</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="bg-[#1877F2] hover:bg-blue-600 text-white font-semibold py-1.5 px-3 rounded-lg flex items-center gap-1.5 text-[15px] transition shadow-sm">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                Thêm vào tin
+                            </button>
+                            <button class="bg-[#E4E6EB] hover:bg-[#D8DADF] text-[#050505] font-semibold py-1.5 px-3 rounded-lg flex items-center gap-1.5 text-[15px] transition shadow-sm">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                Chỉnh sửa trang cá nhân
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="w-full max-w-[1000px] px-4 flex gap-1 border-t border-gray-300 pt-1 text-[15px] font-semibold text-[#65676B] overflow-x-auto">
+                    <div class="px-4 py-3 cursor-pointer hover:bg-[#F2F2F2] rounded-md text-[#1877F2] border-b-2 border-[#1877F2] whitespace-nowrap">Bài viết</div>
+                    <div class="px-4 py-3 cursor-pointer hover:bg-[#F2F2F2] rounded-md whitespace-nowrap">Giới thiệu</div>
+                    <div class="px-4 py-3 cursor-pointer hover:bg-[#F2F2F2] rounded-md whitespace-nowrap">Bạn bè</div>
+                    <div class="px-4 py-3 cursor-pointer hover:bg-[#F2F2F2] rounded-md whitespace-nowrap">Ảnh</div>
+                    <div class="px-4 py-3 cursor-pointer hover:bg-[#F2F2F2] rounded-md whitespace-nowrap">Reels</div>
+                    <div class="px-4 py-3 cursor-pointer hover:bg-[#F2F2F2] rounded-md whitespace-nowrap flex items-center gap-1">Xem thêm <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>
+                </div>
+            </div>
+
+            <!-- Profile Body -->
+            <div class="w-full max-w-[1000px] mx-auto px-4 py-4 flex flex-col lg:flex-row gap-4">
+                <!-- Left Column (Intro) -->
+                <div class="w-full lg:w-[360px] flex flex-col gap-4">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                        <h2 class="text-[20px] font-bold text-[#050505] mb-4">Thông tin cá nhân</h2>
+                        <div class="space-y-4 text-[15px] text-[#050505]">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                                <span>Từ <span class="font-bold">Thành phố Hồ Chí Minh</span></span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M11 11V6h2v5h5v2h-5v5h-2v-5H6v-2h5z"/></svg>
+                                <span>12 tháng 6</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                <span>Đang hẹn hò</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column (Posts Placeholder) -->
+                <div class="flex-1 flex flex-col gap-4">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                        <h2 class="text-[20px] font-bold text-[#050505] text-center text-gray-400 py-8">Bạn đang nghĩ gì?</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     <!-- Mission Panel -->
     <div id="mission-panel" class="hidden fixed w-[320px] bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.15)] border border-gray-200 z-[90] p-5 fade-in select-none" style="top: 120px; right: 320px; cursor: grab;">
         <h3 class="font-bold text-[22 text-[#1877F2] mb-4 flex items-center gap-2 pointer-events-none">
@@ -453,6 +544,24 @@
             }
         }
 
+        
+        function goToProfile() {
+            document.getElementById('view-feed-layout').classList.add('hidden');
+            document.getElementById('view-profile-layout').classList.remove('hidden');
+            els.tutorialTooltip.classList.add('hidden');
+            
+            // Show profile tutorial if task 1 is not done
+            const task1Done = document.getElementById('task1-icon').classList.contains('bg-[#31A24C]');
+            if (!task1Done) {
+                document.getElementById('tutorial-tooltip-profile').classList.remove('hidden');
+            }
+        }
+
+        function goToFeed() {
+            document.getElementById('view-profile-layout').classList.add('hidden');
+            document.getElementById('view-feed-layout').classList.remove('hidden');
+        }
+
         function startPostSimulation() {
             // Check avatar change count
             state.avatarChangeCount = (state.avatarChangeCount || 0) + 1;
@@ -464,6 +573,10 @@
 
             state.isSimulationRunning = true;
             els.emptyState.classList.add('hidden');
+
+            goToFeed();
+            document.getElementById('tutorial-tooltip-profile').classList.add('hidden');
+
             
             els.mainPost.classList.remove('hidden');
             els.commentsList.innerHTML = '';
@@ -476,7 +589,10 @@
             els.postAvatarLarge.src = imgPath;
             els.navAvatar.src = imgPath;
             els.menuAvatarThumb.src = imgPath;
+            
             els.sidebarAvatar.src = imgPath;
+            document.getElementById('profile-page-avatar').src = imgPath;
+
 
             els.feedScrollArea.scrollTo({ top: 0, behavior: 'smooth' });
             runCommentSequence();
@@ -672,7 +788,10 @@
             
             els.navAvatar.src = defaultAvatars[g];
             els.menuAvatarThumb.src = defaultAvatars[g];
+            
             els.sidebarAvatar.src = defaultAvatars[g];
+            document.getElementById('profile-page-avatar').src = defaultAvatars[g];
+
             
             generateLibraryGrid(g);
             
