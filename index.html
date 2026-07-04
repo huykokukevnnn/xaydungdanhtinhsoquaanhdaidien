@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám phá ảnh đại diện</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600;700&display=swap');
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        .fade-in { animation: fadeIn 0.4s ease-in forwards; }
+        .fade-out { animation: fadeOut 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        
+        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        
+        .avatar-card { transition: all 0.2s ease; border: 4px solid transparent; }
+        .avatar-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .avatar-card:active { transform: scale(0.97); }
+        .avatar-selected { border-color: #1877F2; box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.3); }
+        
+        /* Custom scrollbars to match desktop FB */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #bcc0c4; border-radius: 4px; }
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #8a8d91; }
+    </style>
+</head>
+<body class="bg-[#F0F2F5] min-h-screen w-full text-[#050505] overflow-hidden flex flex-col">
+
+    <!-- Screen 0: Gender Selection -->
+    <div id="screen-gender" class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-white h-screen w-screen fade-in">
+        <h1 class="text-3xl md:text-5xl font-bold mb-8 text-[#1877F2] tracking-tight text-center px-4">
+            Chào mừng bạn đến với Mạng xã hội!<br>
+            <span class="text-2xl md:text-3xl text-gray-600 font-medium mt-4 block">Vui lòng điền thông tin của bạn</span>
+        </h1>
+        
+        <div class="mb-8 w-full max-w-md px-4">
+            <input type="text" id="student-name-input" placeholder="Nhập tên của bạn (VD: Gia Bảo)" class="w-full px-5 py-4 text-xl rounded-xl border-2 border-gray-300 focus:border-[#1877F2] focus:ring-4 focus:ring-[#1877F2] focus:ring-opacity-20 outline-none transition-all shadow-sm">
+        </div>
+
+        <div class="flex gap-6 md:gap-12 mb-10">
+            <button id="btn-gender-boy" onclick="selectGenderUI('boy')" class="w-36 h-48 md:w-48 md:h-64 bg-white rounded-2xl shadow-md transition-all flex flex-col items-center justify-center border-4 border-transparent hover:border-[#1877F2]">
+                <span class="text-6xl md:text-8xl mb-6">👦</span>
+                <span class="font-bold text-xl md:text-2xl text-gray-700">Nam</span>
+            </button>
+            <button id="btn-gender-girl" onclick="selectGenderUI('girl')" class="w-36 h-48 md:w-48 md:h-64 bg-white rounded-2xl shadow-md transition-all flex flex-col items-center justify-center border-4 border-transparent hover:border-pink-500">
+                <span class="text-6xl md:text-8xl mb-6">👧</span>
+                <span class="font-bold text-xl md:text-2xl text-gray-700">Nữ</span>
+            </button>
+        </div>
+
+        <button onclick="startGame()" class="px-12 py-4 bg-[#1877F2] hover:bg-blue-700 text-white font-bold rounded-xl text-xl shadow-lg transition-transform hover:scale-105 active:scale-95">
+            Đồng ý và Bắt đầu
+        </button>
+    </div>
+
+    <!-- Screen 1: Main Social Network (Full Screen) -->
+    <div id="screen-feed" class="hidden flex-1 flex flex-col bg-[#F0F2F5] h-screen w-full relative">
+        
+        <!-- Top Navbar -->
+        <div class="bg-white border-b border-gray-200 h-[56px] flex items-center justify-between px-4 shadow-sm z-30 shrink-0 w-full relative">
+            
+            <!-- Search Bar Area -->
+            <div class="flex items-center gap-2 flex-1 max-w-[300px]">
+                <div class="bg-[#F0F2F5] rounded-full px-4 py-2 flex items-center text-gray-500 text-[18 w-full cursor-not-allowed">
+                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    Tìm kiếm trên mạng xã hội
+                </div>
+            </div>
+            
+            <!-- Middle Tabs -->
+            <div class="hidden md:flex flex-1 max-w-[600px] justify-center gap-1 mx-4 h-full pt-1">
+                <div class="w-[110px] flex justify-center items-center cursor-pointer border-b-[3px] border-[#1877F2]">
+                    <svg class="w-7 h-7 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </div>
+                <div class="w-[110px] flex justify-center items-center cursor-pointer hover:bg-[#F2F2F2] rounded-lg my-1 transition-colors">
+                    <svg class="w-7 h-7 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM8 15c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2H8zm6-4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
+                </div>
+                <div class="w-[110px] flex justify-center items-center cursor-pointer hover:bg-[#F2F2F2] rounded-lg my-1 transition-colors">
+                    <svg class="w-7 h-7 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                </div>
+            </div>
+
+            <!-- Right Icons & Profile -->
+            <div class="flex items-center justify-end gap-2 flex-1">
+                <div class="w-10 h-10 bg-[#E4E6EB] rounded-full flex items-center justify-center hover:bg-[#D8DADF] cursor-pointer">
+                    <svg class="w-5 h-5 text-gray-800" fill="currentColor" viewBox="0 0 24 24"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
+                </div>
+                <div class="w-10 h-10 bg-[#E4E6EB] rounded-full flex items-center justify-center hover:bg-[#D8DADF] cursor-pointer">
+                    <svg class="w-5 h-5 text-gray-800" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.03 2 11c0 2.85 1.5 5.4 3.82 7.05V22l3.46-1.92c.88.24 1.79.37 2.72.37 5.52 0 10-4.03 10-9s-4.48-9-10-9zm1 9.5l-2.5 3-4.5-3 5-5 2.5 3 4.5 3-5 5z"/></svg>
+                </div>
+                <div class="w-10 h-10 bg-[#E4E6EB] rounded-full flex items-center justify-center hover:bg-[#D8DADF] cursor-pointer relative">
+                    <svg class="w-5 h-5 text-gray-800" fill="currentColor" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                    <div class="absolute -top-1 -right-1 bg-[#E41E3F] text-white text-[11px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center">1</div>
+                </div>
+                
+                <!-- Interactive Profile Button -->
+                <div class="relative z-[110] ml-1">
+                    <div id="profile-btn" class="w-10 h-10 rounded-full bg-gray-200 cursor-pointer overflow-hidden border hover:opacity-90 relative" onclick="handleProfileClick(event)">
+                        <img id="current-avatar-nav" src="" class="w-full h-full object-cover" alt="Profile">
+                    </div>
+                    
+                    <!-- Tutorial Tooltip -->
+                    <div id="tutorial-tooltip" class="absolute hidden right-0 top-[60px] bg-[#1877F2] text-white px-5 py-3 rounded-xl shadow-2xl w-[280px] text-[18px] font-bold animate-pulse z-[120]">
+                        Bấm vào đây để thay đổi ảnh đại diện!
+                        <div class="absolute -top-3 right-5 w-6 h-6 bg-[#1877F2] rotate-45"></div>
+                    </div>
+
+                    <!-- Dropdown Popover -->
+                    <div id="profile-menu" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 z-[120] overflow-hidden">
+                        <div class="p-3 bg-white">
+                            <div class="flex items-center gap-3 p-3 rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.1)] mb-3">
+                                <img id="menu-avatar-thumb" src="" class="w-10 h-10 rounded-full object-cover">
+                                <div>
+                                    <div class="font-bold text-[20 text-gray-900 student-name-display">Học sinh lớp 5</div>
+                                </div>
+                            </div>
+                            <div class="border-t border-gray-200 mb-2"></div>
+                            <button onclick="openAvatarLibrary()" class="w-full text-left px-3 py-2.5 hover:bg-[#F2F2F2] font-medium text-[18 text-[#050505] rounded-md flex items-center gap-3 transition-colors">
+                                <div class="w-9 h-9 bg-[#E4E6EB] rounded-full flex items-center justify-center"><svg class="w-5 h-5 text-gray-800" fill="currentColor" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg></div>
+                                Cập nhật ảnh đại diện
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Layout Wrapper -->
+        <div class="flex-1 flex overflow-hidden">
+            <!-- Left Sidebar -->
+            <div class="hidden lg:block w-[360px] p-2 bg-[#F0F2F5] overflow-y-auto custom-scrollbar">
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img id="sidebar-avatar" src="" class="w-9 h-9 rounded-full object-cover">
+                    <span class="font-medium text-[18 text-[#050505] student-name-display">Học sinh lớp 5</span>
+                </div>
+                
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><circle fill='%231877F2' cx='18' cy='18' r='18'/><path fill='%23fff' d='M18 10a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm-7.5 13.5v-1.5c0-2.5 5-3.8 7.5-3.8s7.5 1.3 7.5 3.8v1.5H10.5z'/></svg>" class="w-8 h-8">
+                    <span class="font-medium text-[18 text-[#050505]">Nhóm</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><rect fill='%23F5605C' x='4' y='8' width='28' height='20' rx='4'/><path fill='%23fff' d='M15 13l8 5-8 5v-10z'/></svg>" class="w-8 h-8">
+                    <span class="font-medium text-[18 text-[#050505]">Thước phim</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><path fill='%231877F2' d='M4 12l2-6h24l2 6v4h-28v-4zm2 6h24v12H6z'/></svg>" class="w-8 h-8">
+                    <span class="font-medium text-[18 text-[#050505]">Marketplace</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><rect fill='%231877F2' x='6' y='6' width='24' height='24' rx='4'/><path fill='%23fff' d='M10 10h16v4H10zm0 6h16v4H10z'/></svg>" class="w-8 h-8">
+                    <span class="font-medium text-[18 text-[#050505]">Bảng feed</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><rect fill='%23E83F5B' x='6' y='6' width='24' height='24' rx='4'/><path fill='%23fff' d='M12 12h12v12H12z'/></svg>" class="w-8 h-8">
+                    <span class="font-medium text-[18 text-[#050505]">Sự kiện</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><circle fill='%230072C3' cx='18' cy='18' r='18'/><path fill='%23fff' d='M12 16l6-4 6 4v6h-12z'/></svg>" class="w-8 h-8">
+                    <span class="font-medium text-[18 text-[#050505]">Chơi game</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><rect fill='%231A2B4C' x='6' y='12' width='24' height='12' rx='2'/><path fill='%23fff' d='M8 14h20v2H8z'/></svg>" class="w-8 h-8">
+                    <span class="font-medium text-[18 text-[#050505]">Đơn đặt hàng và thanh toán</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><rect fill='%231877F2' x='6' y='6' width='24' height='24' rx='4'/><path fill='%23fff' d='M10 16l8-4 8 4v8H10z'/></svg>" class="w-8 h-8">
+                    <span class="font-medium text-[18 text-[#050505]">Hoạt động mới đây với quảng cáo</span>
+                </div>
+
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><rect fill='%23F1C21B' x='8' y='12' width='20' height='16' rx='2'/><path fill='%23fff' d='M16 8h4v4h-4z'/></svg>" class="w-8 h-8">
+                    <span class="font-medium text-[18 text-[#050505]">Sinh nhật</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><path fill='%23F5605C' d='M8 8h12v20H8z'/></svg>" class="w-8 h-8">
+                    <span class="font-medium text-[18 text-[#050505]">Trang</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><path fill='%231877F2' d='M8 18h4v10H8zm8-6h4v16h-4zm8-4h4v20h-4z'/></svg>" class="w-8 h-8">
+                    <span class="font-medium text-[18 text-[#050505]">Trình quản lý quảng cáo</span>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><rect fill='%230072C3' x='6' y='10' width='24' height='16' rx='4'/><path fill='%23fff' d='M14 14l8 4-8 4z'/></svg>" class="w-8 h-8">
+                    <span class="font-medium text-[18 text-[#050505]">Video chơi game</span>
+                </div>
+
+                <div class="my-3 mx-2 border-t border-gray-300"></div>
+                
+                <div class="px-2 mb-2 flex justify-between items-center group">
+                    <h3 class="font-semibold text-gray-500 text-[22">Lối tắt của bạn</h3>
+                </div>
+                
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23F59E0B' rx='20'/><text x='50' y='65' font-size='40' text-anchor='middle'>🎮</text></svg>" class="w-9 h-9 rounded-lg">
+                    <span class="font-medium text-[18 text-[#050505]">Game Khám Phá</span>
+                </div>
+            </div>
+
+            <!-- Center Feed -->
+            <div class="flex-1 overflow-y-auto relative w-full h-full flex flex-col items-center pt-6 pb-24 px-4 scroll-smooth custom-scrollbar" id="feed-scroll-area">
+                
+                <!-- Main Post Component (Hidden initially) -->
+                <div id="main-post" class="hidden w-full max-w-[500px] bg-white rounded-xl shadow border border-gray-200 overflow-hidden mb-6 fade-in">
+                    <!-- Post Header -->
+                    <div class="p-3 flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-200 cursor-pointer">
+                                <img id="post-avatar-small" src="" class="w-full h-full object-cover hover:opacity-90">
+                            </div>
+                            <div>
+                                <div class="font-bold text-[18 text-[#050505] cursor-pointer hover:underline leading-tight student-name-display">Học sinh lớp 5</div>
+                                <div class="text-[16 text-gray-500 flex items-center gap-1 cursor-pointer hover:underline mt-0.5">
+                                    Vừa xong · 
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.162-2.73 1.996 1.996 0 00-.51 1.402c.002.502.164.975.44 1.353.25.344.6.61.997.77a2 2 0 00.916.147 6.012 6.012 0 01-3.005-1.042zM15.668 8.027a6.012 6.012 0 00-1.162-2.73 1.996 1.996 0 01.51 1.402c-.002.502-.164.975-.44 1.353-.25.344-.6.61-.997.77a2 2 0 01-.916.147 6.012 6.012 0 003.005-1.042zM10 15a5.002 5.002 0 01-4.935-4.18 1.996 1.996 0 001.378-1.503 2 2 0 00.916.147 2 2 0 00.916-.147 1.996 1.996 0 001.378 1.503A5.002 5.002 0 0110 15z" clip-rule="evenodd"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 cursor-pointer text-gray-500">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"></path></svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Post Text -->
+                    <div class="px-4 pb-2 text-[18 text-[#050505]">Bạn vừa cập nhật ảnh đại diện mới...</div>
+                    
+                    <!-- Post Image -->
+                    <div class="w-full aspect-square bg-[#F0F2F5] flex items-center justify-center overflow-hidden border-y border-gray-200">
+                        <img id="post-avatar-large" src="" class="w-[90%] h-[90%] object-cover rounded-full border-4 border-white shadow-md">
+                    </div>
+
+                    <!-- Reaction Counter Bar -->
+                    <div class="px-4 py-2 border-b border-gray-200 flex justify-between items-center text-gray-500 text-[18">
+                        <div class="flex items-center" id="reaction-container">
+                            <!-- Reactions injected here -->
+                        </div>
+                        <div id="comment-count" class="cursor-pointer hover:underline">0 bình luận</div>
+                    </div>
+
+                    <!-- Action Buttons Toolbar -->
+                    <div class="px-4 py-1 flex justify-between border-b border-gray-200">
+                        <button class="flex-1 py-1.5 flex items-center justify-center gap-2 text-[#65676B] hover:bg-[#F2F2F2] rounded-md cursor-pointer font-semibold text-[18 transition-colors" onclick="this.classList.toggle('text-[#1877F2]')">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg> Thích
+                        </button>
+                        <button class="flex-1 py-1.5 flex items-center justify-center gap-2 text-[#65676B] hover:bg-[#F2F2F2] rounded-md pointer-events-none font-semibold text-[18 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg> Bình luận
+                        </button>
+                        <button class="flex-1 py-1.5 flex items-center justify-center gap-2 text-[#65676B] hover:bg-[#F2F2F2] rounded-md pointer-events-none font-semibold text-[18 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg> Chia sẻ
+                        </button>
+                    </div>
+
+                    <!-- Comment Section -->
+                    <div class="p-4 bg-white max-h-[400px] overflow-y-auto custom-scrollbar" id="comments-container">
+                        <div id="comments-list" class="space-y-4">
+                            <!-- Real comments injected here -->
+                        </div>
+                        
+                        <!-- Typing Indicator Container -->
+                        <div id="typing-indicator" class="hidden items-center gap-2 mt-4">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 border border-gray-300 flex-shrink-0"></div>
+                            <div class="bg-[#F0F2F5] rounded-2xl px-4 py-2.5 text-[16 text-gray-600 flex gap-2 items-center">
+                                <span class="font-medium text-gray-500" id="typing-name"></span>
+                                <div class="flex gap-1 ml-1">
+                                    <div class="w-1.5 h-1.5 bg-gray-500 rounded-full typing-dot"></div>
+                                    <div class="w-1.5 h-1.5 bg-gray-500 rounded-full typing-dot"></div>
+                                    <div class="w-1.5 h-1.5 bg-gray-500 rounded-full typing-dot"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State Message -->
+                <div id="empty-state" class="flex flex-col items-center justify-center mt-32 text-center px-4 fade-in">
+                    <h2 class="text-xl font-bold text-gray-700 mb-2">Bảng tin của bạn đang trống</h2>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="hidden xl:flex flex-col w-[360px] p-4 bg-[#F0F2F5] overflow-y-auto custom-scrollbar">
+                
+                <!-- Sponsored -->
+                <h3 class="font-semibold text-[#65676B] mb-2 text-[18">Được tài trợ</h3>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer mb-2">
+                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=120&q=80" class="w-[110px] h-[110px] rounded-lg object-cover border border-black/10">
+                    <div class="flex flex-col justify-center">
+                        <span class="font-medium text-[18 text-[#050505] leading-tight mb-1">Giày chạy bộ cực êm - Giảm ngay 50%</span>
+                        <span class="text-[16 text-[#65676B]">supershoes.vn</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#E4E6EB] cursor-pointer mb-2">
+                    <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=120&q=80" class="w-[110px] h-[110px] rounded-lg object-cover border border-black/10">
+                    <div class="flex flex-col justify-center">
+                        <span class="font-medium text-[18 text-[#050505] leading-tight mb-1">Khóa học Tiếng Anh cho trẻ em lớp 5</span>
+                        <span class="text-[16 text-[#65676B]">englishtop.edu</span>
+                    </div>
+                </div>
+                
+                <div class="my-3 border-t border-gray-300 mx-2"></div>
+
+                <!-- Contacts -->
+                <div class="flex justify-between items-center mb-2 px-2">
+                    <h3 class="font-semibold text-[#65676B] text-[18">Người liên hệ</h3>
+                    <div class="flex gap-4 text-[#65676B]">
+                        <svg class="w-4 h-4 cursor-pointer" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        <svg class="w-4 h-4 cursor-pointer" fill="currentColor" viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                </div>
+                
+                <div class="space-y-0.5">
+                    <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-[#E4E6EB] cursor-pointer">
+                        <div class="w-9 h-9 rounded-full bg-[#1877F2] text-white flex items-center justify-center font-bold text-xs relative">
+                            GB
+                            <div class="absolute bottom-0 right-0 w-3 h-3 bg-[#31A24C] rounded-full border-2 border-[#F0F2F5]"></div>
+                        </div>
+                        <span class="text-[18 font-medium text-[#050505]">Gia Bảo</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-[#E4E6EB] cursor-pointer">
+                        <div class="w-9 h-9 rounded-full bg-[#E83F5B] text-white flex items-center justify-center font-bold text-xs relative">
+                            BN
+                            <div class="absolute bottom-0 right-0 w-3 h-3 bg-[#31A24C] rounded-full border-2 border-[#F0F2F5]"></div>
+                        </div>
+                        <span class="text-[18 font-medium text-[#050505]">Bảo Ngọc</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-[#E4E6EB] cursor-pointer">
+                        <div class="w-9 h-9 rounded-full bg-[#8A3FFC] text-white flex items-center justify-center font-bold text-xs relative">
+                            HĐ
+                            <div class="absolute bottom-0 right-0 w-3 h-3 bg-[#31A24C] rounded-full border-2 border-[#F0F2F5]"></div>
+                        </div>
+                        <span class="text-[18 font-medium text-[#050505]">Hải Đăng</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-[#E4E6EB] cursor-pointer">
+                        <div class="w-9 h-9 rounded-full bg-[#0072C3] text-white flex items-center justify-center font-bold text-xs relative">
+                            HB
+                            <div class="absolute bottom-0 right-0 w-3 h-3 bg-[#31A24C] rounded-full border-2 border-[#F0F2F5]"></div>
+                        </div>
+                        <span class="text-[18 font-medium text-[#050505]">Hoàng Bách</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-[#E4E6EB] cursor-pointer">
+                        <div class="w-9 h-9 rounded-full bg-[#F1C21B] text-gray-800 flex items-center justify-center font-bold text-xs relative">
+                            NP
+                            <div class="absolute bottom-0 right-0 w-3 h-3 bg-[#31A24C] rounded-full border-2 border-[#F0F2F5]"></div>
+                        </div>
+                        <span class="text-[18 font-medium text-[#050505]">Nhã Phương</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mission Panel -->
+    <div id="mission-panel" class="hidden fixed w-[320px] bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.15)] border border-gray-200 z-[90] p-5 fade-in select-none" style="top: 120px; right: 320px; cursor: grab;">
+        <h3 class="font-bold text-[22 text-[#1877F2] mb-4 flex items-center gap-2 pointer-events-none">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            Nhiệm vụ của bạn
+        </h3>
+        
+        <div class="space-y-4 mb-5">
+            <div class="flex items-start gap-3">
+                <div id="task1-icon" class="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5 flex items-center justify-center bg-white text-white transition-colors duration-300">
+                    <svg class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <div class="text-[18 font-medium text-gray-800 leading-tight pt-1 transition-colors duration-300" id="task1-text">1. Thay đổi ảnh đại diện</div>
+            </div>
+            <div class="flex items-start gap-3">
+                <div id="task2-icon" class="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5 flex items-center justify-center bg-white text-white transition-colors duration-300">
+                    <svg class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <div class="text-[18 font-medium text-gray-800 leading-tight pt-1 transition-colors duration-300" id="task2-text">2. Xem kết quả phản hồi ở bảng tin</div>
+            </div>
+        </div>
+
+        <div class="bg-[#F0F8FF] rounded-lg p-3 border border-[#D0E8FF]">
+            <h4 class="font-bold text-[#0052A3] text-[16 uppercase mb-1.5">Hướng dẫn thực hiện</h4>
+            <p class="text-[18 text-[#003B73] leading-snug">Nhấn vào biểu tượng <strong>Avatar của bạn ở góc trên bên phải</strong> màn hình, sau đó chọn <strong>"Cập nhật ảnh đại diện"</strong> để làm nhiệm vụ đầu tiên!</p>
+        </div>
+    </div>
+
+    <!-- Avatar Library Modal -->
+    <div id="modal-library" class="hidden fixed inset-0 z-[300] items-center justify-center bg-black/50 backdrop-blur-sm fade-in">
+        <div class="bg-white w-full max-w-[95%] md:max-w-5xl rounded-xl shadow-2xl flex flex-col h-[90vh] relative overflow-hidden">
+            <!-- Header -->
+            <div class="flex justify-between items-center p-4 border-b border-gray-200 bg-white z-10 shrink-0">
+                <h2 class="text-xl font-bold text-[#050505]">Cập nhật ảnh đại diện</h2>
+                <div onclick="closeAvatarLibrary()" class="w-9 h-9 bg-[#E4E6EB] rounded-full flex items-center justify-center hover:bg-[#D8DADF] cursor-pointer text-gray-600 font-bold text-xl">&times;</div>
+            </div>
+            
+            <!-- Grid Body -->
+            <div class="flex-1 overflow-y-auto p-4 bg-white relative custom-scrollbar">
+                <p class="text-[18 text-[#65676B] mb-4">Chọn một ảnh đại diện phong cách cartoon chân thật bên dưới.</p>
+                <div id="library-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    <!-- Javascript injects AI Avatars here -->
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="p-4 border-t border-gray-200 bg-white shrink-0 flex justify-between items-center">
+                <span class="text-[18 text-[#65676B]" id="selection-status">Chưa chọn ảnh nào.</span>
+                <button onclick="closeAvatarLibrary()" class="px-8 py-2 bg-[#1877F2] text-white rounded-md font-semibold text-[18 hover:bg-[#166FE5] transition active:scale-95">Xong</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function generateLibraryGrid(gender) {
+            els.libraryGrid.innerHTML = '';
+            
+            const categories = gender === 'boy' ? categoriesBoy : categoriesGirl;
+            
+            // Shuffle categories so images appear in random order
+            let shuffledCats = [...categories].sort(() => Math.random() - 0.5);
+            
+            shuffledCats.forEach(cat => {
+                let imgPath = `./images/${gender}_${cat.id}.jpg`; 
+
+                const card = document.createElement('div');
+                card.className = `avatar-card bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer flex flex-col h-full`;
+                card.id = `card-${cat.id}`;
+                
+                card.innerHTML = `
+                    <div class="w-full aspect-square bg-gray-50 flex items-center justify-center relative overflow-hidden">
+                        <img src="${imgPath}" alt="${cat.name}" class="w-full h-full object-cover">
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => {
+                    state.selectedAvatarObj = { ...cat, imgPath };
+                    highlightSelectedCard(cat.id);
+                    els.selectionStatus.innerHTML = `Đã chọn: <span class="font-bold text-[#1877F2]">${cat.name}</span>`;
+                });
+                
+                els.libraryGrid.appendChild(card);
+            });
+        }
+
+        function highlightSelectedCard(id) {
+            document.querySelectorAll('.avatar-card').forEach(el => el.classList.remove('avatar-selected'));
+            document.getElementById(`card-${id}`).classList.add('avatar-selected');
+        }
+
+        const classmates = ["Gia Bảo", "Bảo Ngọc", "Hải Đăng"];
+
+        function startPostSimulation() {
+            // Task 1 completed
+            markTaskDone(1);
+
+            state.isSimulationRunning = true;
+            els.emptyState.classList.add('hidden');
+            
+            els.mainPost.classList.remove('hidden');
+            els.commentsList.innerHTML = '';
+            els.reactionContainer.innerHTML = '';
+            els.commentCountDisplay.textContent = '0 bình luận';
+            state.visibleCommentsCount = 0;
+            
+            const imgPath = state.selectedAvatarObj.imgPath;
+            els.postAvatarSmall.src = imgPath;
+            els.postAvatarLarge.src = imgPath;
+            els.navAvatar.src = imgPath;
+            els.menuAvatarThumb.src = imgPath;
+            els.sidebarAvatar.src = imgPath;
+
+            els.feedScrollArea.scrollTo({ top: 0, behavior: 'smooth' });
+            runCommentSequence();
+        }
+
+        async function runCommentSequence() {
+            state.targetLikes = Math.floor(Math.random() * (50 - 30 + 1)) + 30;
+            for (let i = 0; i < 2; i++) {
+                const prepDelay = (i === 0) ? 1500 : 2500;
+                await new Promise(r => setTimeout(r, prepDelay));
+                
+                els.typingName.textContent = `${classmates[i]} đang nhập bình luận...`;
+                els.typingIndicator.classList.remove('hidden');
+                els.typingIndicator.classList.add('flex', 'fade-in');
+                scrollFeedToBottom();
+                
+                await new Promise(r => setTimeout(r, 1800));
+                
+                els.typingIndicator.classList.add('hidden');
+                els.typingIndicator.classList.remove('flex', 'fade-in');
+                
+                addCommentDOM(classmates[i], state.selectedAvatarObj.comments[i]);
+                state.visibleCommentsCount++;
+                els.commentCountDisplay.textContent = `${state.visibleCommentsCount} bình luận`;
+                
+                updateReactions(state.selectedAvatarObj.type, i + 1);
+            }
+            state.isSimulationRunning = false;
+            
+            // Task 2 completed
+            setTimeout(() => { markTaskDone(2); }, 1000);
+        }
+
+        function addCommentDOM(author, text) {
+            const commentDOM = document.createElement('div');
+            commentDOM.className = 'flex gap-2 fade-in mb-3';
+            
+            const initials = author.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+            const colors = ['bg-[#0072C3]', 'bg-[#E83F5B]', 'bg-[#F1C21B]'];
+            const color = colors[state.visibleCommentsCount % colors.length];
+            const textColor = color === 'bg-[#F1C21B]' ? 'text-gray-800' : 'text-white';
+
+            commentDOM.innerHTML = `
+                <div class="w-8 h-8 rounded-full ${color} ${textColor} flex-shrink-0 flex items-center justify-center font-bold text-[11px] shadow-sm">${initials}</div>
+                <div>
+                    <div class="bg-[#F0F2F5] rounded-2xl px-3.5 py-2 text-[18 text-[#050505]">
+                        <span class="font-bold mr-1">${author}</span>${text}
+                    </div>
+                    <div class="text-[15 text-[#65676B] mt-1 ml-3 font-semibold flex gap-4">
+                        <span class="cursor-pointer hover:underline" onclick="this.classList.toggle('text-[#1877F2]')">Thích</span>
+                        <span class="cursor-pointer hover:underline">Phản hồi</span>
+                        <span class="font-normal text-gray-500">Vừa xong</span>
+                    </div>
+                </div>
+            `;
+            els.commentsList.appendChild(commentDOM);
+            scrollFeedToBottom();
+        }
+
+        function updateReactions(type, step) {
+            let icons = '';
+            let targetCount = state.targetLikes || 35;
+            
+            if (type === 'positive') {
+                icons = `<div class="w-5 h-5 bg-[#1877F2] rounded-full flex items-center justify-center text-white text-[10px] z-20 border-2 border-white shadow-sm">👍</div>
+                         <div class="w-5 h-5 bg-[#E41E3F] rounded-full flex items-center justify-center text-white text-[10px] -ml-1.5 z-10 border-2 border-white shadow-sm">❤️</div>`;
+            } else if (type === 'negative') {
+                icons = `<div class="w-5 h-5 bg-[#F59E0B] rounded-full flex items-center justify-center text-white text-[10px] z-20 border-2 border-white shadow-sm">😡</div>
+                         <div class="w-5 h-5 bg-[#FBBF24] rounded-full flex items-center justify-center text-white text-[10px] -ml-1.5 z-10 border-2 border-white shadow-sm">😆</div>`;
+            } else {
+                icons = `<div class="w-5 h-5 bg-[#1877F2] rounded-full flex items-center justify-center text-white text-[10px] z-20 border-2 border-white shadow-sm">👍</div>
+                         <div class="w-5 h-5 bg-[#FBBF24] rounded-full flex items-center justify-center text-white text-[10px] -ml-1.5 z-10 border-2 border-white shadow-sm">😮</div>`;
+            }
+            
+            const currentCount = Math.floor((targetCount / 2) * step) + Math.floor(Math.random() * 3);
+            els.reactionContainer.innerHTML = `${icons}<span class="ml-1.5 font-medium hover:underline cursor-pointer text-[#65676B]">${currentCount}</span>`;
+        }
+
+        function scrollFeedToBottom() {
+            setTimeout(() => {
+                els.feedScrollArea.scrollTo({ top: els.feedScrollArea.scrollHeight, behavior: 'smooth' });
+            }, 50);
+        }
+
+        // State initialization
+        const categoriesBoy = [
+            { id: '1', type: 'positive', name: 'Đá bóng', comments: ["Đá banh không bạn ơi?", "Cầu thủ tương lai đây rồi ⚽", "Dáng sút chất quá!"] },
+            { id: '2', type: 'positive', name: 'Bóng rổ', comments: ["Ném 3 điểm không trượt phát nào nha!", "Trông ngầu quá, bóng rổ đỉnh cao 🏀", "Tuyệt vời!"] },
+            { id: '3', type: 'positive', name: 'Cờ vua', comments: ["Cao thủ cờ vua đây rồi!", "Trí tuệ quá, đấu một ván không?", "Kỳ thủ tương lai ♟️"] },
+            { id: '4', type: 'positive', name: 'Nhảy Hip-hop', comments: ["Dancer cực ngầu nha!", "Hip-hop never die 🔥", "Cháy quá bạn ơi!"] },
+            { id: '5', type: 'positive', name: 'Bơi lội', comments: ["Kình ngư bơi lội!", "Mát mẻ quá 🏊", "Khỏe khoắn quá bạn ơi!"] },
+            { id: '6', type: 'positive', name: 'Trượt ván', comments: ["Skater boy ngầu quá!", "Kỹ năng đỉnh cao 🛹", "Wow, nhảy xịn thế!"] },
+            { id: '7', type: 'positive', name: 'Võ thuật', comments: ["Võ sĩ tương lai 🥋", "Thần thái quá ngầu!", "Nhìn mạnh mẽ ghê."] },
+            { id: '8', type: 'positive', name: 'Quần vợt', comments: ["Tay vợt cừ khôi 🎾", "Pha giao bóng chuẩn xác!", "Ra sân không bạn ơi?"] },
+            { id: '9', type: 'positive', name: 'Bắn cung', comments: ["Bắn chuẩn xác quá! 🏹", "Nhìn tập trung ghê.", "Cung thủ tài ba!"] },
+            { id: '10', type: 'positive', name: 'E-sports', comments: ["Game thủ đỉnh cao 🎮", "Gánh team không bạn ơi?", "Setup RGB xịn xò quá!"] }
+        ];
+
+        const categoriesGirl = [
+            { id: '1', type: 'positive', name: 'Múa Ballet', comments: ["Nhìn như thiên nga ấy, múa đẹp quá 🩰", "Dáng múa chuẩn ghê!", "Thanh lịch quá ❤️"] },
+            { id: '2', type: 'positive', name: 'Trượt băng', comments: ["Trượt băng nghệ thuật xuất sắc ⛸️", "Lộng lẫy quá!", "Xoay người đẹp tuyệt vời!"] },
+            { id: '3', type: 'positive', name: 'Cờ vua', comments: ["Kỳ thủ thông minh quá ♟️", "Nụ cười trí tuệ!", "Giao lưu 1 ván nhé?"] },
+            { id: '4', type: 'positive', name: 'Thể dục dụng cụ', comments: ["Dẻo dai quá bạn ơi! 🎀", "Nhào lộn đẹp quá!", "Tuyệt vời!"] },
+            { id: '5', type: 'positive', name: 'Bóng chuyền', comments: ["Cú đập bóng uy lực 🏐", "Thể thao và năng động ghê!", "Đỉnh quá bạn ơi!"] },
+            { id: '6', type: 'positive', name: 'Tập Yoga', comments: ["Bình yên quá 🧘‍♀️", "Tư thế chuẩn ghê!", "Nhìn thư giãn lắm luôn."] },
+            { id: '7', type: 'positive', name: 'Cầu lông', comments: ["Tay vợt nữ số 1 nha 🏸", "Sẵn sàng đập cầu!", "Năng động quá!"] },
+            { id: '8', type: 'positive', name: 'Lướt sóng', comments: ["Ngầu quá bạn ơi 🏄‍♀️", "Rất ngầu và phong cách!", "Sóng lớn cũng không sợ!"] },
+            { id: '9', type: 'positive', name: 'Trượt Patin', comments: ["Patin cổ điển xinh quá 🛼", "Retro 80s đỉnh ghê!", "Màu sắc nổi bật quá!"] },
+            { id: '10', type: 'positive', name: 'Nhảy hiện đại', comments: ["Vũ đạo xịn xò quá 🔥", "Uyển chuyển tuyệt vời!", "Nhảy đẹp lắm luôn á!"] }
+        ];
+
+        let state = {
+            gender: null,
+            userName: "Học sinh lớp 5",
+            selectedAvatarObj: null,
+            isSimulationRunning: false,
+            visibleCommentsCount: 0
+        };
+
+        const defaultAvatars = {
+            boy: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23DBEAFE'/><text x='50' y='65' font-size='50' text-anchor='middle'>👦</text></svg>",
+            girl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23FCE7F3'/><text x='50' y='65' font-size='50' text-anchor='middle'>👧</text></svg>"
+        };
+
+        const els = {
+            screenGender: document.getElementById('screen-gender'),
+            screenFeed: document.getElementById('screen-feed'),
+            modalLibrary: document.getElementById('modal-library'),
+            libraryGrid: document.getElementById('library-grid'),
+            profileMenu: document.getElementById('profile-menu'),
+            navAvatar: document.getElementById('current-avatar-nav'),
+            menuAvatarThumb: document.getElementById('menu-avatar-thumb'),
+            sidebarAvatar: document.getElementById('sidebar-avatar'),
+            mainPost: document.getElementById('main-post'),
+            emptyState: document.getElementById('empty-state'),
+            postAvatarSmall: document.getElementById('post-avatar-small'),
+            postAvatarLarge: document.getElementById('post-avatar-large'),
+            commentsList: document.getElementById('comments-list'),
+            typingIndicator: document.getElementById('typing-indicator'),
+            typingName: document.getElementById('typing-name'),
+            reactionContainer: document.getElementById('reaction-container'),
+            commentCountDisplay: document.getElementById('comment-count'),
+            selectionStatus: document.getElementById('selection-status'),
+            feedScrollArea: document.getElementById('feed-scroll-area'),
+            missionPanel: document.getElementById('mission-panel'),
+            task1Icon: document.getElementById('task1-icon'),
+            task1Text: document.getElementById('task1-text'),
+            task2Icon: document.getElementById('task2-icon'),
+            task2Text: document.getElementById('task2-text'),
+            tutorialTooltip: document.getElementById('tutorial-tooltip')
+        };
+
+        function selectGenderUI(gender) {
+            state.gender = gender;
+            document.getElementById('btn-gender-boy').classList.remove('border-[#1877F2]', 'bg-blue-50');
+            document.getElementById('btn-gender-boy').classList.add('border-transparent');
+            document.getElementById('btn-gender-girl').classList.remove('border-pink-500', 'bg-pink-50');
+            document.getElementById('btn-gender-girl').classList.add('border-transparent');
+            
+            if (gender === 'boy') {
+                document.getElementById('btn-gender-boy').classList.remove('border-transparent');
+                document.getElementById('btn-gender-boy').classList.add('border-[#1877F2]', 'bg-blue-50');
+            } else {
+                document.getElementById('btn-gender-girl').classList.remove('border-transparent');
+                document.getElementById('btn-gender-girl').classList.add('border-pink-500', 'bg-pink-50');
+            }
+        }
+
+        function startGame() {
+            const nameInput = document.getElementById('student-name-input').value.trim();
+            if (!nameInput) {
+                alert("Vui lòng nhập tên của bạn!");
+                document.getElementById('student-name-input').focus();
+                return;
+            }
+            if (!state.gender) {
+                alert("Vui lòng chọn giới tính (Nam/Nữ)!");
+                return;
+            }
+            state.userName = nameInput;
+            
+            const nameElements = document.querySelectorAll('.student-name-display');
+            nameElements.forEach(el => el.textContent = state.userName);
+
+            setGender(state.gender);
+        }
+
+        function setGender(g) {
+            state.gender = g;
+            
+            els.navAvatar.src = defaultAvatars[g];
+            els.menuAvatarThumb.src = defaultAvatars[g];
+            els.sidebarAvatar.src = defaultAvatars[g];
+            
+            generateLibraryGrid(g);
+            
+            els.screenGender.classList.add('fade-out');
+            setTimeout(() => {
+                els.screenGender.classList.add('hidden');
+                els.screenFeed.classList.remove('hidden');
+                els.screenFeed.classList.add('fade-in');
+                
+                // Show mission panel and tooltip
+                els.missionPanel.classList.remove('hidden');
+                els.tutorialTooltip.classList.remove('hidden');
+            }, 400);
+        }
+
+        function markTaskDone(taskNum) {
+            const icon = taskNum === 1 ? els.task1Icon : els.task2Icon;
+            const text = taskNum === 1 ? els.task1Text : els.task2Text;
+            
+            icon.classList.remove('border-gray-300', 'bg-white');
+            icon.classList.add('border-[#31A24C]', 'bg-[#31A24C]');
+            icon.querySelector('svg').classList.remove('hidden');
+            
+            text.classList.add('line-through', 'text-gray-400');
+            text.classList.remove('text-gray-800');
+        }
+
+        function handleProfileClick(e) {
+            e.stopPropagation();
+            els.tutorialTooltip.classList.add('hidden');
+            els.profileMenu.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!els.profileMenu.classList.contains('hidden') && !e.target.closest('#profile-menu') && !e.target.closest('#profile-btn')) {
+                els.profileMenu.classList.add('hidden');
+            }
+        });
+
+        // Dragging logic for Mission Panel
+        const missionPanel = document.getElementById('mission-panel');
+        let isDragging = false, xOffset = 0, yOffset = 0, initialX, initialY;
+
+        missionPanel.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+
+        function dragStart(e) {
+            if (e.target.closest('#mission-panel')) {
+                e.preventDefault(); // Prevent text selection
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+                isDragging = true;
+            }
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+                xOffset = e.clientX - initialX;
+                yOffset = e.clientY - initialY;
+                missionPanel.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
+                missionPanel.style.cursor = 'grabbing';
+            }
+        }
+
+        function dragEnd(e) {
+            isDragging = false;
+            missionPanel.style.cursor = 'grab';
+        }
+
+        function openAvatarLibrary() {
+            els.modalLibrary.classList.remove('hidden');
+            els.modalLibrary.classList.add('flex');
+            els.tutorialTooltip.classList.add('hidden');
+        }
+
+        function closeAvatarLibrary() {
+            els.modalLibrary.classList.add('hidden');
+            els.modalLibrary.classList.remove('flex');
+            if (state.selectedAvatarObj && !state.isSimulationRunning) {
+                startPostSimulation();
+            }
+        }
+    </script>
+</body>
+</html>
+
