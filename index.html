@@ -445,25 +445,42 @@
         </div>
 
     <!-- Mission Panel -->
-    <div id="mission-panel" class="hidden fixed w-[320px] bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.15)] border border-gray-200 z-[90] p-5 fade-in select-none" style="top: 120px; right: 320px; cursor: grab;">
-        <h3 class="font-bold text-[22 text-[#1877F2] mb-4 flex items-center gap-2 pointer-events-none">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+    <div id="mission-panel" class="hidden fixed w-[350px] bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.15)] border border-gray-200 z-[90] p-5 fade-in select-none" style="top: 120px; right: 320px; cursor: grab;">
+        <h3 class="font-bold text-[22px] text-[#1877F2] mb-5 flex items-center gap-2 pointer-events-none">
+            <svg class="w-7 h-7 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
             Nhiệm vụ của bạn
         </h3>
         
-        <div class="space-y-4 mb-5">
+        <div class="space-y-4 mb-6">
             <div class="flex items-start gap-3">
-                <div id="task1-icon" class="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5 flex items-center justify-center bg-white text-white transition-colors duration-300">
-                    <svg class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <div id="task1-icon" class="w-6 h-6 rounded-full border-[2px] border-[#D1D5DB] flex-shrink-0 mt-0.5 flex items-center justify-center bg-white text-white transition-colors duration-300">
+                    <svg class="w-3.5 h-3.5 hidden" fill="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                 </div>
-                <div class="text-[18 font-medium text-gray-800 leading-tight pt-1 transition-colors duration-300" id="task1-text">1. Thay đổi ảnh đại diện ít nhất 4 lần (<span id="avatar-change-count">0</span>/4)</div>
+                <div class="text-[17px] font-medium text-[#2C3E50] leading-tight transition-colors duration-300" id="task1-text">1. Thay đổi ảnh đại diện</div>
             </div>
             <div class="flex items-start gap-3">
-                <div id="task2-icon" class="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5 flex items-center justify-center bg-white text-white transition-colors duration-300">
-                    <svg class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <div id="task2-icon" class="w-6 h-6 rounded-full border-[2px] border-[#D1D5DB] flex-shrink-0 mt-0.5 flex items-center justify-center bg-white text-white transition-colors duration-300">
+                    <svg class="w-3.5 h-3.5 hidden" fill="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                 </div>
-            <h4 class="font-bold text-[#0052A3] text-[16 uppercase mb-1.5">Hướng dẫn thực hiện</h4>
-            <p class="text-[18 text-[#003B73] leading-snug">Nhấn vào biểu tượng <strong>Avatar của bạn ở góc trên bên phải</strong> màn hình, sau đó chọn <strong>"Cập nhật ảnh đại diện"</strong> để làm nhiệm vụ đầu tiên!</p>
+                <div class="text-[17px] font-medium text-[#2C3E50] leading-tight transition-colors duration-300" id="task2-text">2. Xem kết quả phản hồi ở bảng tin</div>
+            </div>
+            <div class="flex items-start gap-3">
+                <div id="task3-icon" class="w-6 h-6 rounded-full border-[2px] border-[#D1D5DB] flex-shrink-0 mt-0.5 flex items-center justify-center bg-white text-white transition-colors duration-300">
+                    <svg class="w-3.5 h-3.5 hidden" fill="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <div class="text-[17px] font-medium text-[#2C3E50] leading-tight transition-colors duration-300" id="task3-text">3. Thay đổi ảnh đại diện ít nhất 4 lần</div>
+            </div>
+            <div class="flex items-start gap-3">
+                <div id="task4-icon" class="w-6 h-6 rounded-full border-[2px] border-[#D1D5DB] flex-shrink-0 mt-0.5 flex items-center justify-center bg-white text-white transition-colors duration-300">
+                    <svg class="w-3.5 h-3.5 hidden" fill="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <div class="text-[17px] font-medium text-[#2C3E50] leading-tight transition-colors duration-300" id="task4-text">4. Quan sát sự khác biệt của phản hồi</div>
+            </div>
+        </div>
+
+        <div class="bg-[#F0F7FF] border border-[#D5E8FA] rounded-xl p-4 shadow-sm">
+            <h4 class="font-bold text-[#0052A3] text-[15px] uppercase mb-1.5">HƯỚNG DẪN THỰC HIỆN</h4>
+            <p class="text-[16px] text-[#003B73] leading-snug">Nhấn vào biểu tượng <strong>Avatar của bạn ở góc trên bên phải</strong> màn hình, sau đó chọn <strong>"Cập nhật ảnh đại diện"</strong> để làm nhiệm vụ đầu tiên!</p>
         </div>
     </div>
 
@@ -538,11 +555,14 @@
         const classmates = ["Gia Bảo", "Bảo Ngọc", "Hải Đăng"];
 
         function checkShowQuizButton() {
-            const task1Done = document.getElementById('task1-icon').classList.contains('bg-[#31A24C]');
-            const task2Done = document.getElementById('task2-icon').classList.contains('bg-[#31A24C]');
-            if (task1Done && task2Done) {
+            const task1Done = els.task1Icon.classList.contains('bg-[#1877F2]');
+            const task2Done = els.task2Icon.classList.contains('bg-[#1877F2]');
+            const task3Done = els.task3Icon.classList.contains('bg-[#1877F2]');
+            const task4Done = els.task4Icon.classList.contains('bg-[#1877F2]');
+            if (task1Done && task2Done && task3Done && task4Done) {
                 document.getElementById('btn-start-quiz').classList.remove('hidden');
             }
+        }
         }
 
         
@@ -552,7 +572,7 @@
             els.tutorialTooltip.classList.add('hidden');
             
             // Show profile tutorial if task 1 is not done
-            const task1Done = document.getElementById('task1-icon').classList.contains('bg-[#31A24C]');
+            const task1Done = document.getElementById('task1-icon').classList.contains('bg-[#1877F2]');
             if (!task1Done) {
                 document.getElementById('tutorial-tooltip-profile').classList.remove('hidden');
             }
@@ -566,11 +586,9 @@
         function startPostSimulation() {
             // Check avatar change count
             state.avatarChangeCount = (state.avatarChangeCount || 0) + 1;
-            document.getElementById('avatar-change-count').textContent = Math.min(state.avatarChangeCount, 4);
-            if (state.avatarChangeCount >= 4) {
-                markTaskDone(1);
-                checkShowQuizButton();
-            }
+            if (state.avatarChangeCount >= 1) markTaskDone(1);
+            if (state.avatarChangeCount >= 4) markTaskDone(3);
+            checkShowQuizButton();
 
             state.isSimulationRunning = true;
             els.emptyState.classList.add('hidden');
@@ -623,9 +641,10 @@
             }
             state.isSimulationRunning = false;
             
-            // Task 2 completed
+            // Task completions
             setTimeout(() => { 
-                markTaskDone(2); 
+                if (state.avatarChangeCount >= 1) markTaskDone(2); 
+                if (state.avatarChangeCount >= 4) markTaskDone(4);
                 checkShowQuizButton();
             }, 1000);
         }
@@ -746,6 +765,10 @@
             task1Text: document.getElementById('task1-text'),
             task2Icon: document.getElementById('task2-icon'),
             task2Text: document.getElementById('task2-text'),
+            task3Icon: document.getElementById('task3-icon'),
+            task3Text: document.getElementById('task3-text'),
+            task4Icon: document.getElementById('task4-icon'),
+            task4Text: document.getElementById('task4-text'),
             tutorialTooltip: document.getElementById('tutorial-tooltip')
         };
 
@@ -809,15 +832,15 @@
         }
 
         function markTaskDone(taskNum) {
-            const icon = taskNum === 1 ? els.task1Icon : els.task2Icon;
-            const text = taskNum === 1 ? els.task1Text : els.task2Text;
+            let icon;
+            if (taskNum === 1) icon = els.task1Icon;
+            else if (taskNum === 2) icon = els.task2Icon;
+            else if (taskNum === 3) icon = els.task3Icon;
+            else if (taskNum === 4) icon = els.task4Icon;
             
-            icon.classList.remove('border-gray-300', 'bg-white');
-            icon.classList.add('border-[#31A24C]', 'bg-[#31A24C]');
+            icon.classList.remove('border-[#D1D5DB]', 'bg-white');
+            icon.classList.add('border-[#1877F2]', 'bg-[#1877F2]', 'border-transparent');
             icon.querySelector('svg').classList.remove('hidden');
-            
-            text.classList.add('line-through', 'text-gray-400');
-            text.classList.remove('text-gray-800');
         }
 
         function handleProfileClick(e) {
